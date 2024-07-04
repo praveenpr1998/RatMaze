@@ -1,0 +1,106 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+#controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#controls label {
+    margin-right: 5px;
+}
+
+#controls input, #controls button {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+#controls button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#controls button:hover {
+    background-color: #0056b3;
+}
+
+#maze {
+    display: grid;
+    gap: 2px;
+    margin-top: 10px;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wall {
+    background-color: #333;
+}
+
+.start {
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+}
+
+.end {
+    background-color: #dc3545;
+    color: white;
+    font-weight: bold;
+}
+
+.rat {
+    background-color: #ffc107;
+    color: black;
+    font-weight: bold;
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.success-message {
+    color: green;
+    font-weight: bold;
+    font-size: 18px;
+}
+button.disabled {
+    opacity: 0.6; /* Reduce opacity to indicate disabled state */
+    cursor: not-allowed; /* Change cursor to indicate not clickable */
+}
