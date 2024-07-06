@@ -1,13 +1,26 @@
+const { START, END, LOST_MESSAGE, WON_MESSAGE } = TEXT_CONSTANTS;
 document.addEventListener("DOMContentLoaded", () => {
-  const mazeContainer = document.getElementById("maze");
-  const message = document.getElementById("message");
-  const sizeInput = document.getElementById("size");
-  const wallsInput = document.getElementById("walls");
-  const generateButton = document.getElementById("generate");
-  const startButton = document.getElementById("start");
-  const pauseButton = document.getElementById("pause");
-  const resetButton = document.getElementById("reset");
-
+  const {
+    message,
+    size: sizeInput,
+    walls: wallsInput,
+    generate: generateButton,
+    start: startButton,
+    pause: pauseButton,
+    play: playButton,
+    reset: resetButton,
+    maze: mazeContainer,
+  } = getElementsByIds([
+    "message",
+    "size",
+    "walls",
+    "generate",
+    "start",
+    "pause",
+    "play",
+    "reset",
+    "maze",
+  ]);
   let maze = [];
   let ratPosition = { row: 0, col: 0 };
   let endPosition = { row: 0, col: 0 };
@@ -36,16 +49,16 @@ document.addEventListener("DOMContentLoaded", () => {
     maze = Array.from({ length: size }, () => Array(size).fill(0));
     ratPosition = { row: 0, col: 0 };
     endPosition = { row: size - 1, col: size - 1 };
-    maze[0][0] = "S";
-    maze[size - 1][size - 1] = "E";
+    maze[0][0] = START;
+    maze[size - 1][size - 1] = END;
 
     // 	Create a random row and col index
     // Where the indices should not be  1 and start and end
 
     let placedWalls = 0;
     while (placedWalls < walls) {
-      const row = Math.floor(Math.random() * size);
-      const col = Math.floor(Math.random() * size);
+      const row = getRandomNumber(size);
+      const col = getRandomNumber(size);
       if (
         (row !== 0 || col !== 0) &&
         (row !== size - 1 || col !== size - 1) &&
@@ -56,10 +69,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     drawMaze();
-    generateButton.classList.remove("disabled");
-    startButton.classList.remove("disabled");
-    resetButton.classList.add("disabled");
-    pauseButton.classList.add("disabled");
+    manageClasses([
+      { element: generateButton, removeClasses: ["disabled"] },
+      { element: startButton, removeClasses: ["disabled"] },
+      { element: resetButton, addClasses: ["disabled"] },
+      { element: pauseButton, addClasses: ["disabled"] },
+      { element: playButton, addClasses: ["disabled"] },
+    ]);
   };
 
   //   Based on the value of maze[I][j]
@@ -74,8 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
       row.forEach((cell, colIndex) => {
         const div = document.createElement("div");
         div.classList.add("cell");
-        if (cell === "S") div.classList.add("start");
-        else if (cell === "E") div.classList.add("end");
+        if (cell === START) div.classList.add("start");
+        else if (cell === END) div.classList.add("end");
         else if (cell === 1) div.classList.add("wall");
         if (rowIndex === ratPosition.row && colIndex === ratPosition.col) {
           div.classList.add("rat");
@@ -100,40 +116,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const move = () => {
       // Checks to be made
       // -> if passed don’t run
-
       // -> if current pos is end[n-1][n-1] return as victory
-
       // -> if stack which keeps the route came is 0
       // ( which means it tried all possible 4 directions
       // and none satisfies the valid move) -> No Solution found
-
       // -> loop through possible directions and check for a valid move
       //   -> if valid -> update the current rat position, visited Set
 
       if (paused) return;
       if (stack.length === 0) {
-        message.textContent = "Uh oh! The rat is lost";
-        message.classList.remove("success-message");
-        message.classList.add("error-message");
+        message.textContent = LOST_MESSAGE;
+        manageClasses([
+          { element: message, removeClasses: ["success-message"] },
+          { element: message, addClasses: ["error-message"] },
+        ]);
         clearInterval(interval);
-        generateButton.classList.remove("disabled");
-        startButton.classList.remove("disabled");
-        resetButton.classList.remove("disabled");
-        pauseButton.classList.add("disabled");
+        manageClasses([
+          { element: generateButton, removeClasses: ["disabled"] },
+          { element: startButton, removeClasses: ["disabled"] },
+          { element: resetButton, removeClasses: ["disabled"] },
+          { element: pauseButton, addClasses: ["disabled"] },
+        ]);
+
         return;
       }
       const current = stack.pop();
       const { row, col } = current;
 
       if (row === endPosition.row && col === endPosition.col) {
-        message.textContent = "Victory! The rat found the way!";
-        message.classList.remove("error-message");
-        message.classList.add("success-message");
+        message.textContent = WON_MESSAGE;
+        manageClasses([
+          { element: message, removeClasses: ["error-message"] },
+          { element: message, addClasses: ["success-message"] },
+        ]);
+
         clearInterval(interval);
-        generateButton.classList.remove("disabled");
-        startButton.classList.remove("disabled");
-        resetButton.classList.remove("disabled");
-        pauseButton.classList.add("disabled");
+        manageClasses([
+          { element: generateButton, removeClasses: ["disabled"] },
+          { element: startButton, removeClasses: ["disabled"] },
+          { element: resetButton, removeClasses: ["disabled"] },
+          { element: pauseButton, addClasses: ["disabled"] },
+        ]);
+
         return;
       }
 
@@ -182,25 +206,44 @@ document.addEventListener("DOMContentLoaded", () => {
   startButton.addEventListener("click", () => {
     paused = false;
     message.textContent = "";
-    message.classList.remove("error-message", "success-message"); // Clear previous message classes
-    generateButton.classList.add("disabled");
-    startButton.classList.add("disabled");
-    resetButton.classList.remove("disabled");
-    pauseButton.classList.remove("disabled");
+    manageClasses([
+      { element: message, removeClasses: ["error-message", "success-message"] },
+      { element: generateButton, addClasses: ["disabled"] },
+      { element: startButton, addClasses: ["disabled"] },
+      { element: resetButton, removeClasses: ["disabled"] },
+      { element: pauseButton, removeClasses: ["disabled"] },
+    ]);
+
     ratPosition = { row: 0, col: 0 };
     solveMaze();
   });
   pauseButton.addEventListener("click", () => {
     paused = true;
+    manageClasses([
+      { element: pauseButton, addClasses: ["disabled"] },
+      { element: playButton, removeClasses: ["disabled"] },
+    ]);
   });
+
+  playButton.addEventListener("click", () => {
+    paused = false;
+    manageClasses([
+      { element: playButton, addClasses: ["disabled"] },
+      { element: pauseButton, removeClasses: ["disabled"] },
+    ]);
+  });
+
   resetButton.addEventListener("click", () => {
     clearInterval(interval);
     message.textContent = "";
-    message.classList.remove("error-message", "success-message");
-    generateButton.classList.remove("disabled");
-    startButton.classList.remove("disabled");
-    resetButton.classList.add("disabled");
-    pauseButton.classList.add("disabled");
+    manageClasses([
+      { element: message, removeClasses: ["error-message", "success-message"] },
+      { element: generateButton, removeClasses: ["disabled"] },
+      { element: startButton, removeClasses: ["disabled"] },
+      { element: resetButton, addClasses: ["disabled"] },
+      { element: pauseButton, addClasses: ["disabled"] },
+    ]);
+
     ratPosition = { row: 0, col: 0 };
     updateCell(ratPosition.row, ratPosition.col, false);
     drawMaze();
